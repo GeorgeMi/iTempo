@@ -1,12 +1,12 @@
 // iTempo — Prisma schema
-// Local dev: SQLite. For prod on Neon, swap provider to "postgresql".
+// Postgres (Neon on Vercel). For local SQLite dev, swap provider back to "sqlite".
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
