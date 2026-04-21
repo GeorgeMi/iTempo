@@ -1,0 +1,140 @@
+// iTempo — Prisma schema
+// Local dev: SQLite. For prod on Neon, swap provider to "postgresql".
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────────────────────────────────────
+// Auth — minimal Auth.js-compatible user model (credentials + JWT)
+// ────────────────────────────────────────────────────────────────
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  passwordHash   String
+  locale         String   @default("ro")
+  currency       String   @default("RON")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  clients        Client[]
+  services       Service[]
+  appointments   Appointment[]
+  recurringRules RecurringRule[]
+}
+
+// ────────────────────────────────────────────────────────────────
+// Domain
+// ────────────────────────────────────────────────────────────────
+
+model Client {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  phone       String?
+  email       String?
+  notes       String?
+  color       String   @default("#6366f1")
+  defaultRate Float?
+  archived    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  appointments   Appointment[]
+  recurringRules RecurringRule[]
+
+  @@index([userId, archived])
+}
+
+model Service {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name            String
+  defaultDuration Int
+  defaultPrice    Float
+  color           String   @default("#6366f1")
+  archived        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  appointments   Appointment[]
+  recurringRules RecurringRule[]
+
+  @@index([userId, archived])
+}
+
+// status: "SCHEDULED" | "DONE" | "CANCELLED" | "NO_SHOW"
+model Appointment {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  serviceId       String
+  service         Service  @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  recurringRuleId String?
+  recurringRule   RecurringRule? @relation(fields: [recurringRuleId], references: [id], onDelete: SetNull)
+  originalStart   DateTime?
+
+  startAt         DateTime
+  endAt           DateTime
+  price           Float
+  status          String   @default("SCHEDULED")
+  paid            Boolean  @default(false)
+  paidAt          DateTime?
+  notes           String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, startAt])
+  @@index([clientId])
+  @@index([serviceId])
+  @@index([recurringRuleId])
+}
+
+// frequency: "WEEKLY" | "BIWEEKLY" | "MONTHLY"
+model RecurringRule {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clientId         String
+  client           Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  serviceId        String
+  service          Service  @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  frequency        String
+  dayOfWeek        Int
+  dayOfMonth       Int?
+  startTimeMinutes Int
+  durationMinutes  Int
+  price            Float
+
+  startsOn         DateTime
+  endsOn           DateTime?
+  active           Boolean  @default(true)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  appointments     Appointment[]
+
+  @@index([userId, active])
+  @@index([clientId])
+}
