@@ -55,7 +55,7 @@ export function CalendarPage({
         const classes = ["itempo-event"];
         if (o.kind === "virtual") classes.push("itempo-virtual");
         if (cancelled) classes.push("itempo-cancelled");
-        if (done && paid) classes.push("itempo-paid");
+        if (paid) classes.push("itempo-paid");
         if (done && !paid) classes.push("itempo-unpaid");
         return {
           id: o.materialized?.id ?? `virtual:${o.recurringRuleId}:${o.originalStart}`,

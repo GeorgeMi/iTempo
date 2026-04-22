@@ -181,6 +181,26 @@
 .fc-event.itempo-unpaid {
   box-shadow: inset 3px 0 0 hsl(var(--warning)) !important;
 }
+.fc-event.itempo-paid {
+  position: relative;
+}
+.fc-event.itempo-paid::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background-color: hsl(var(--success));
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3 6.3l2.2 2.2L9 4.2'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  z-index: 3;
+}
 .fc-event.itempo-cancelled {
   opacity: 0.4;
   text-decoration: line-through;
