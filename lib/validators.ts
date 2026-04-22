@@ -18,6 +18,7 @@ export const clientSchema = z.object({
   notes: z.string().optional().nullable(),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   defaultRate: z.coerce.number().nonnegative().optional().nullable(),
+  defaultDuration: z.coerce.number().int().min(5).max(600).optional().nullable(),
 });
 
 export const serviceSchema = z.object({

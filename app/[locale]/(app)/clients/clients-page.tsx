@@ -27,6 +27,7 @@ type Client = {
   notes: string | null;
   color: string;
   defaultRate: number | null;
+  defaultDuration: number | null;
   archived: boolean;
 };
 
@@ -183,6 +184,7 @@ function ClientDialog({
       notes: String(fd.get("notes") || "") || null,
       color,
       defaultRate: fd.get("defaultRate") ? Number(fd.get("defaultRate")) : null,
+      defaultDuration: fd.get("defaultDuration") ? Number(fd.get("defaultDuration")) : null,
     };
     startTransition(async () => {
       try {
@@ -223,17 +225,31 @@ function ClientDialog({
               <Input id="email" name="email" type="email" defaultValue={editing?.email ?? ""} />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="defaultRate">{t("defaultRate")}</Label>
-            <Input
-              id="defaultRate"
-              name="defaultRate"
-              type="number"
-              min="0"
-              step="1"
-              defaultValue={editing?.defaultRate ?? ""}
-            />
-            <p className="text-xs text-muted-foreground">{t("defaultRateHint")}</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="defaultRate">{t("defaultRate")}</Label>
+              <Input
+                id="defaultRate"
+                name="defaultRate"
+                type="number"
+                min="0"
+                step="1"
+                defaultValue={editing?.defaultRate ?? ""}
+              />
+              <p className="text-xs text-muted-foreground">{t("defaultRateHint")}</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="defaultDuration">{t("defaultDuration")}</Label>
+              <Input
+                id="defaultDuration"
+                name="defaultDuration"
+                type="number"
+                min="5"
+                step="5"
+                defaultValue={editing?.defaultDuration ?? ""}
+              />
+              <p className="text-xs text-muted-foreground">{t("defaultDurationHint")}</p>
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label>

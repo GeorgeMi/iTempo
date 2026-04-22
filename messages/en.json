@@ -62,6 +62,8 @@
     "color": "Color",
     "defaultRate": "Custom rate (optional)",
     "defaultRateHint": "If set, overrides the default service rate",
+    "defaultDuration": "Custom duration (minutes, optional)",
+    "defaultDurationHint": "If set, overrides the default service duration",
     "archived": "Archived",
     "archive": "Archive",
     "unarchive": "Unarchive",

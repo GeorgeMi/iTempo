@@ -28,7 +28,7 @@ import {
 import { Check, Trash2, AlertTriangle } from "lucide-react";
 import { DayTimeline, useDayOccurrences } from "./day-timeline";
 
-type Client = { id: string; name: string; color: string; defaultRate: number | null };
+type Client = { id: string; name: string; color: string; defaultRate: number | null; defaultDuration: number | null };
 type Service = { id: string; name: string; color: string; defaultDuration: number; defaultPrice: number };
 
 type Occurrence = {
@@ -78,6 +78,14 @@ export function AppointmentDialog({
           serviceId: input.occurrence.serviceId,
           start: new Date(input.occurrence.startAt),
           end: new Date(input.occurrence.endAt),
+          duration: Math.max(
+            5,
+            Math.round(
+              (new Date(input.occurrence.endAt).getTime() -
+                new Date(input.occurrence.startAt).getTime()) /
+                60_000,
+            ),
+          ),
           price: input.occurrence.price,
           status: input.occurrence.materialized?.status ?? "SCHEDULED",
           paid: !!input.occurrence.materialized?.paid,
@@ -88,6 +96,7 @@ export function AppointmentDialog({
           serviceId: services[0]?.id ?? "",
           start: input.defaultStart,
           end: input.defaultEnd,
+          duration: clients[0]?.defaultDuration ?? services[0]?.defaultDuration ?? 60,
           price: clients[0]?.defaultRate ?? services[0]?.defaultPrice ?? 0,
           status: "SCHEDULED",
           paid: false,
@@ -98,10 +107,10 @@ export function AppointmentDialog({
   const [serviceId, setServiceIdState] = useState(initial.serviceId);
   const [date, setDate] = useState(toDateInput(initial.start));
   const [startTime, setStartTime] = useState(toTimeInput(initial.start));
-  const [duration, setDuration] = useState(
-    Math.max(5, Math.round((initial.end.getTime() - initial.start.getTime()) / 60_000)),
-  );
-  const [price, setPrice] = useState(initial.price);
+  const [durationInput, setDurationInput] = useState(String(initial.duration));
+  const [priceInput, setPriceInput] = useState(String(initial.price));
+  const duration = Math.max(0, Number(durationInput) || 0);
+  const price = Math.max(0, Number(priceInput) || 0);
   const [status, setStatusLocal] = useState(initial.status);
   const [paid, setPaid] = useState(initial.paid);
   const [notes, setNotes] = useState(initial.notes);
@@ -135,8 +144,10 @@ export function AppointmentDialog({
     if (input.mode === "create") {
       const c = clients.find((x) => x.id === id);
       const s = services.find((x) => x.id === serviceId);
-      if (c?.defaultRate != null) setPrice(c.defaultRate);
-      else if (s) setPrice(s.defaultPrice);
+      if (c?.defaultRate != null) setPriceInput(String(c.defaultRate));
+      else if (s) setPriceInput(String(s.defaultPrice));
+      if (c?.defaultDuration != null) setDurationInput(String(c.defaultDuration));
+      else if (s) setDurationInput(String(s.defaultDuration));
     }
   };
   const setServiceId = (id: string) => {
@@ -144,9 +155,9 @@ export function AppointmentDialog({
     const s = services.find((x) => x.id === id);
     if (!s) return;
     if (input.mode === "create") {
-      setDuration(s.defaultDuration);
       const c = clients.find((x) => x.id === clientId);
-      setPrice(c?.defaultRate ?? s.defaultPrice);
+      setDurationInput(String(c?.defaultDuration ?? s.defaultDuration));
+      setPriceInput(String(c?.defaultRate ?? s.defaultPrice));
     }
   };
 
@@ -359,8 +370,14 @@ export function AppointmentDialog({
                   type="number"
                   min="5"
                   step="5"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
+                  inputMode="numeric"
+                  value={durationInput}
+                  onChange={(e) => setDurationInput(e.target.value)}
+                  onBlur={() => {
+                    if (durationInput === "" || Number(durationInput) < 5) {
+                      setDurationInput("5");
+                    }
+                  }}
                   required
                 />
               </div>
@@ -403,8 +420,12 @@ export function AppointmentDialog({
                   type="number"
                   min="0"
                   step="1"
-                  value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
+                  inputMode="numeric"
+                  value={priceInput}
+                  onChange={(e) => setPriceInput(e.target.value)}
+                  onBlur={() => {
+                    if (priceInput === "") setPriceInput("0");
+                  }}
                   required
                 />
               </div>

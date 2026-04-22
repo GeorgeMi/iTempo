@@ -25,6 +25,7 @@ export async function createClient(input: unknown) {
       notes: data.notes || null,
       color: data.color,
       defaultRate: data.defaultRate ?? null,
+      defaultDuration: data.defaultDuration ?? null,
     },
   });
   revalidatePath("/", "layout");
@@ -43,6 +44,7 @@ export async function updateClient(id: string, input: unknown) {
       notes: data.notes || null,
       color: data.color,
       defaultRate: data.defaultRate ?? null,
+      defaultDuration: data.defaultDuration ?? null,
     },
   });
   if (result.count === 0) throw new Error("NOT_FOUND");

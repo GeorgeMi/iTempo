@@ -62,6 +62,8 @@
     "color": "Culoare",
     "defaultRate": "Tarif propriu (opțional)",
     "defaultRateHint": "Dacă e setat, înlocuiește tariful default al serviciului",
+    "defaultDuration": "Durată proprie (minute, opțional)",
+    "defaultDurationHint": "Dacă e setată, înlocuiește durata default a serviciului",
     "archived": "Arhivați",
     "archive": "Arhivează",
     "unarchive": "Dezarhivează",

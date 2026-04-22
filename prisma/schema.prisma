@@ -43,9 +43,10 @@ model Client {
   phone       String?
   email       String?
   notes       String?
-  color       String   @default("#6366f1")
-  defaultRate Float?
-  archived    Boolean  @default(false)
+  color           String   @default("#6366f1")
+  defaultRate     Float?
+  defaultDuration Int?
+  archived        Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

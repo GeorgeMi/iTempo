@@ -14,7 +14,7 @@ const CalendarClientMount = dynamic(
   { ssr: false, loading: () => <CalendarSkeleton /> },
 );
 
-type Client = { id: string; name: string; color: string; defaultRate: number | null };
+type Client = { id: string; name: string; color: string; defaultRate: number | null; defaultDuration: number | null };
 type Service = { id: string; name: string; color: string; defaultDuration: number; defaultPrice: number };
 
 export function CalendarPage({

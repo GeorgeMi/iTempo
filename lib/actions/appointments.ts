@@ -62,7 +62,7 @@ export async function getOccurrences(fromISO: string, toISO: string) {
     }),
     prisma.client.findMany({
       where: { userId, archived: false },
-      select: { id: true, name: true, color: true },
+      select: { id: true, name: true, color: true, defaultRate: true, defaultDuration: true },
     }),
     prisma.service.findMany({
       where: { userId, archived: false },
