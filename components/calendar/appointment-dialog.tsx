@@ -289,7 +289,7 @@ export function AppointmentDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="sm:max-w-3xl max-sm:p-4">
         <DialogHeader>
           <DialogTitle className="font-medium tracking-tight">
             {isEdit ? t("edit") : t("new")}
@@ -300,10 +300,10 @@ export function AppointmentDialog({
             e.preventDefault();
             startTransition(submit);
           }}
-          className="grid gap-6 sm:grid-cols-[1fr_260px]"
+          className="grid gap-4 sm:gap-6 sm:grid-cols-[1fr_260px]"
         >
           {/* Left column — form */}
-          <div className="space-y-4">
+          <div className="space-y-3.5 sm:space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>{t("client")}</Label>
@@ -349,8 +349,8 @@ export function AppointmentDialog({
               </div>
             </div>
 
-            <div className="grid gap-3 grid-cols-3">
-              <div className="space-y-1.5">
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
+              <div className="space-y-1.5 col-span-2 sm:col-span-1">
                 <Label>{t("date")}</Label>
                 <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
               </div>

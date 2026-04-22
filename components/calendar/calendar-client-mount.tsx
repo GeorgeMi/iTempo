@@ -57,13 +57,17 @@ export const CalendarClientMount = forwardRef<FullCalendarMountPoint, Props>(fun
       height="auto"
       contentHeight="auto"
       expandRows
+      stickyHeaderDates
       nowIndicator
       slotMinTime="07:00:00"
       slotMaxTime="22:00:00"
       slotDuration="00:30:00"
       slotLabelInterval="01:00:00"
+      slotEventOverlap={false}
       allDaySlot={false}
       eventOverlap
+      eventMinHeight={22}
+      eventShortHeight={30}
       selectable
       selectMirror
       editable
@@ -72,6 +76,13 @@ export const CalendarClientMount = forwardRef<FullCalendarMountPoint, Props>(fun
       selectLongPressDelay={300}
       eventLongPressDelay={300}
       dayMaxEvents
+      dayHeaderFormat={
+        isMobile
+          ? { weekday: "short", day: "2-digit" }
+          : { weekday: "short", day: "2-digit", month: "short" }
+      }
+      eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
+      slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
       events={events}
       datesSet={onDatesSet}
       select={onDateSelect}

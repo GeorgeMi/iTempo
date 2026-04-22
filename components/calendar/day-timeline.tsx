@@ -44,9 +44,66 @@ type Props = {
 const DAY_START_MIN = 7 * 60; // 07:00
 const DAY_END_MIN = 22 * 60; // 22:00
 const PX_PER_MIN = 0.6; // compact: 15h → 540px total
+const GUTTER_REM = 2.25; // width of the hour-label gutter (left-9)
+const RIGHT_PAD_REM = 0.25; // right-1
 
 function minutesOfDay(d: Date) {
   return d.getHours() * 60 + d.getMinutes();
+}
+
+type LaidOut<T extends { startMin: number; endMin: number }> = T & {
+  col: number;
+  depth: number;
+};
+
+// Assigns each segment a column index (0-based) and a depth (total columns in its
+// overlap cluster), so overlapping segments render side-by-side instead of stacked.
+function layoutOverlaps<T extends { startMin: number; endMin: number }>(
+  segs: T[],
+): LaidOut<T>[] {
+  if (segs.length === 0) return [];
+  const sorted = [...segs].sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
+
+  // Group transitively overlapping segments
+  const groups: T[][] = [];
+  for (const s of sorted) {
+    const hits: number[] = [];
+    for (let i = 0; i < groups.length; i++) {
+      if (groups[i].some((x) => x.endMin > s.startMin && x.startMin < s.endMin)) {
+        hits.push(i);
+      }
+    }
+    if (hits.length === 0) {
+      groups.push([s]);
+    } else {
+      const target = hits[0];
+      groups[target].push(s);
+      for (let i = hits.length - 1; i >= 1; i--) {
+        groups[target].push(...groups[hits[i]]);
+        groups.splice(hits[i], 1);
+      }
+    }
+  }
+
+  const out: LaidOut<T>[] = [];
+  for (const g of groups) {
+    g.sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
+    const colEnds: number[] = [];
+    const cols = new Map<T, number>();
+    for (const s of g) {
+      let col = colEnds.findIndex((e) => e <= s.startMin);
+      if (col === -1) {
+        col = colEnds.length;
+        colEnds.push(s.endMin);
+      } else {
+        colEnds[col] = s.endMin;
+      }
+      cols.set(s, col);
+    }
+    const depth = colEnds.length;
+    for (const s of g) out.push({ ...s, col: cols.get(s)!, depth });
+  }
+  return out;
 }
 
 export function DayTimeline({
@@ -61,7 +118,7 @@ export function DayTimeline({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const segments = useMemo(() => {
-    return busy
+    const raw = busy
       .filter((b) => {
         if (b.status === "CANCELLED") return false;
         if (excludeAppointmentId && b.appointmentId === excludeAppointmentId) return false;
@@ -81,6 +138,7 @@ export function DayTimeline({
           height: Math.max(10, (endMin - startMin) * PX_PER_MIN),
         };
       });
+    return layoutOverlaps(raw);
   }, [busy, excludeAppointmentId, excludeOriginalStart]);
 
   const proposed = useMemo(() => {
@@ -160,22 +218,29 @@ export function DayTimeline({
             </div>
           ))}
 
-          {segments.map((s, i) => (
-            <div
-              key={i}
-              className="absolute left-9 right-1 rounded-sm px-1.5 py-0 text-[10px] text-white pointer-events-none overflow-hidden"
-              style={{
-                top: s.top,
-                height: s.height,
-                backgroundColor: s.clientColor,
-                opacity: 0.85,
-                lineHeight: `${Math.min(s.height - 2, 14)}px`,
-              }}
-            >
-              <div className="truncate font-medium">{s.clientName}</div>
-              {s.height > 24 && <div className="truncate opacity-80 text-[9px]">{s.serviceName}</div>}
-            </div>
-          ))}
+          {segments.map((s, i) => {
+            const laneWidth = `calc((100% - ${GUTTER_REM}rem - ${RIGHT_PAD_REM}rem) / ${s.depth})`;
+            return (
+              <div
+                key={i}
+                className="absolute rounded-sm px-1.5 py-0 text-[10px] text-white pointer-events-none overflow-hidden"
+                style={{
+                  top: s.top,
+                  height: s.height,
+                  left: `calc(${GUTTER_REM}rem + ${laneWidth} * ${s.col})`,
+                  width: `calc(${laneWidth} - 2px)`,
+                  backgroundColor: s.clientColor,
+                  opacity: 0.85,
+                  lineHeight: `${Math.min(s.height - 2, 14)}px`,
+                }}
+              >
+                <div className="truncate font-medium">{s.clientName}</div>
+                {s.height > 24 && s.depth === 1 && (
+                  <div className="truncate opacity-80 text-[9px]">{s.serviceName}</div>
+                )}
+              </div>
+            );
+          })}
 
           {proposed && (
             <div

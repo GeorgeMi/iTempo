@@ -123,9 +123,9 @@ export function CalendarPage({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-3xl font-medium tracking-tight">{t("title")}</h1>
+        <h1 className="text-2xl sm:text-3xl font-medium tracking-tight">{t("title")}</h1>
         <Button
           size="sm"
           onClick={() => {
@@ -138,11 +138,11 @@ export function CalendarPage({
           }}
         >
           <Plus className="h-4 w-4" />
-          {t("newAppointment")}
+          <span className="hidden sm:inline">{t("newAppointment")}</span>
         </Button>
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-2 sm:p-4">
+      <div className="rounded-lg border border-border bg-card p-1.5 sm:p-4">
         <CalendarClientMount
           ref={mountRef}
           events={events}
